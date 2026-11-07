@@ -1,4 +1,6 @@
-# vinext-starter
+# 山窗夜话
+
+「山窗夜话」部署到个人 Cloudflare 账号的操作步骤见 [部署到个人Cloudflare账号.md](部署到个人Cloudflare账号.md)。
 
 A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
 

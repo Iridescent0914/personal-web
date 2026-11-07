@@ -14,6 +14,7 @@ const { d1, r2 } = hostingConfig;
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const managedLinux = readExecutionProfile() === "managed-linux";
+const standaloneCloudflare = process.env.JIANGHU_DEPLOY_TARGET === "cloudflare";
 
 const localBindingConfig = {
   main: "./worker/index.ts",
@@ -38,7 +39,7 @@ const localBindingConfig = {
 };
 
 export default defineConfig(async ({ command }) => {
-  configureToolEnvironment(process.cwd());
+  if (!standaloneCloudflare) configureToolEnvironment(process.cwd());
 
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
   const { cloudflare } = await import("@cloudflare/vite-plugin");
@@ -54,38 +55,41 @@ export default defineConfig(async ({ command }) => {
     },
     plugins: [
       vinext(),
-      sites({ mockAuth: !managedLinux }),
-      connectorPreview(),
+      ...(!standaloneCloudflare ? [sites({ mockAuth: !managedLinux }), connectorPreview()] : []),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         inspectorPort: false,
-        config: {
-          ...localBindingConfig,
-          ...(command === "serve"
-            ? {
-                services: [
-                  {
-                    binding: "CONNECTORS",
-                    service: "sites-connector-preview",
-                    entrypoint: "ConnectorPreview",
-                  },
-                ],
-              }
-            : {}),
-        },
-        ...(command === "serve"
-          ? {
-              auxiliaryWorkers: [
-                {
-                  config: {
-                    name: "sites-connector-preview",
-                    main: "./scripts/connector-preview/worker.mjs",
-                    compatibility_date: "2026-05-15",
-                  },
-                },
-              ],
-            }
-          : {}),
+        ...(standaloneCloudflare
+          ? { configPath: "./wrangler.jsonc" }
+          : {
+              config: {
+                ...localBindingConfig,
+                ...(command === "serve"
+                  ? {
+                      services: [
+                        {
+                          binding: "CONNECTORS",
+                          service: "sites-connector-preview",
+                          entrypoint: "ConnectorPreview",
+                        },
+                      ],
+                    }
+                  : {}),
+              },
+              ...(command === "serve"
+                ? {
+                    auxiliaryWorkers: [
+                      {
+                        config: {
+                          name: "sites-connector-preview",
+                          main: "./scripts/connector-preview/worker.mjs",
+                          compatibility_date: "2026-05-15",
+                        },
+                      },
+                    ],
+                  }
+                : {}),
+            }),
       }),
     ],
   };

@@ -6,7 +6,7 @@
 
 1. 登录 Cloudflare 控制台，打开 **Storage & databases → D1 SQL Database**，创建名为 `shanchuang-yehua-db` 的数据库。
 2. 在该数据库的概览页复制 **Database ID**。它是一个 UUID，不是密码，也不是 API 令牌。
-3. 打开 [`wrangler.jsonc`](wrangler.jsonc)，将 `database_id` 中的 `00000000-0000-4000-8000-000000000000` 换成实际 ID。保留 `binding` 的值 `DB`。
+3. [`wrangler.jsonc`](wrangler.jsonc) 已填入当前 D1 的 Database ID `227e11b4-8242-4709-9e9b-0a5c7332f97e`，绑定名为 `DB`，无需再次修改。
 4. 在该数据库的 **Console** 中依次执行以下两条 SQL，以创建留言表和防重复提交索引：
 
 ```sql
@@ -23,20 +23,11 @@ CREATE UNIQUE INDEX `messages_request_id_unique` ON `messages` (`request_id`);
 
 这两条语句与仓库中 [`drizzle/0000_curved_doctor_strange.sql`](drizzle/0000_curved_doctor_strange.sql) 的建表内容相同。只需执行一次。
 
-## 二、把数据库编号提交到 GitHub
+## 二、数据库编号已配置
 
-在 PowerShell 运行下面的命令。内层 `.git` 目录仍保留着独立历史，因此 Git 命令必须从外层 `personal-web` 仓库执行。
+当前 D1 的 `database_id` 已写入 `wrangler.jsonc` 并提交到 GitHub。以后如需更换数据库，再修改该文件并从外层 `D:\personal-web` 仓库提交。Database ID 可以保存在 GitHub；请勿把 Cloudflare 密码、API 令牌或其他密钥提交到仓库。
 
-```powershell
-cd D:\personal-web
-git add sites/jianghu-room/wrangler.jsonc
-git commit -m "Configure personal Cloudflare D1 database"
-git push origin main
-```
-
-`database_id` 可以保存在 GitHub；请勿把 Cloudflare 密码、API 令牌或其他密钥提交到仓库。
-
-## 三、连接 GitHub 并部署
+## 三、检查 GitHub 构建设置并部署
 
 当前已创建 Worker `personal-web` 并连接 GitHub 仓库 `Iridescent0914/personal-web`。在 Cloudflare 控制台打开 **Workers & Pages → personal-web → Settings → Build**，编辑构建设置：
 

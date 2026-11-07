@@ -38,15 +38,17 @@ git push origin main
 
 ## 三、连接 GitHub 并部署
 
-在 Cloudflare 控制台打开 **Workers & Pages → Create application**，选择连接 GitHub 仓库 `Iridescent0914/personal-web`。构建设置填写：
+当前已创建 Worker `personal-web` 并连接 GitHub 仓库 `Iridescent0914/personal-web`。在 Cloudflare 控制台打开 **Workers & Pages → personal-web → Settings → Build**，编辑构建设置：
 
 | 设置 | 值 |
 | --- | --- |
-| Worker 名称 | `shan-chuang-ye-hua` |
+| Worker 名称 | `personal-web`，与 `wrangler.jsonc` 中的 `name` 一致 |
 | 生产分支 | `main` |
 | Root directory | `sites/jianghu-room` |
 | Build command | `npm run build` |
 | Deploy command | `npm run deploy:cloudflare` |
+
+如果部署日志显示 `Could not detect a directory containing static files`，同时 Root directory 是 `/`、Build command 是 `None`，说明 Cloudflare 在仓库根目录运行了默认的 `npx wrangler deploy`。将上表的三个构建字段改好并保存；修改后的设置会用于下一次构建或重试。
 
 Cloudflare 会使用仓库里的 `package-lock.json` 安装依赖。首次部署成功后，控制台会显示 `*.workers.dev` 网址。若界面提前提供预览构建开关，可以先保持关闭；数据库配置完成并确认生产站点正常后再启用。
 

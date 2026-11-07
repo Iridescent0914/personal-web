@@ -13,11 +13,11 @@ let output;
 try {
   output = JSON.parse(readFileSync(new URL("../dist/server/wrangler.json", import.meta.url), "utf8"));
 } catch {
-  throw new Error("先运行 npm run build:cloudflare。 ");
+  throw new Error("先运行 npm run build。 ");
 }
 if (output.name !== config.name ||
     output.d1_databases?.find((binding) => binding.binding === "DB")?.database_id !== database.database_id) {
-  throw new Error("构建产物与当前 Cloudflare 配置不一致；请重新运行 npm run build:cloudflare。 ");
+  throw new Error("构建产物与当前 Cloudflare 配置不一致；请重新运行 npm run build。 ");
 }
 
 const cli = fileURLToPath(new URL("../node_modules/wrangler/bin/wrangler.js", import.meta.url));
